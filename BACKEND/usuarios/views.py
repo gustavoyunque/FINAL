@@ -5,6 +5,8 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Usuario
 from .serializador import SerializadorUsuario
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -29,9 +31,9 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         username = request.data.get('username')
         password = request.data.get('password')
-        
+
         user = authenticate(username=username, password=password)
-        
+
         if user:
             refresh = RefreshToken.for_user(user)
             return Response({
@@ -39,7 +41,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 'access': str(refresh.access_token),
                 'user': SerializadorUsuario(user).data
             }, status=status.HTTP_200_OK)
-        
+
         return Response({
             'message': 'Credenciales inválidas'
         }, status=status.HTTP_401_UNAUTHORIZED)
@@ -52,13 +54,13 @@ class UserViewSet(viewsets.ModelViewSet):
         """
         user = self.get_object()
         nuevo_tipo = request.data.get('tipo_usuario')
-        
+
         if nuevo_tipo:
             user.tipo_usuario = nuevo_tipo
             user.save()
             serializer = self.get_serializer(user)
             return Response(serializer.data)
-        
+
         return Response({
             'message': 'Tipo de usuario no proporcionado'
         }, status=status.HTTP_400_BAD_REQUEST)
@@ -71,3 +73,11 @@ class UserViewSet(viewsets.ModelViewSet):
         usuario = serializer.save()
         usuario.is_active = True
         usuario.save()
+
+class PerfilView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        usuario = request.user
+        serializer = UsuarioSerializer(usuario)
+        return Response(serializer.data)

@@ -1,15 +1,19 @@
-""" Django settings for banco_project project. """
+"""
+Django settings for banco_project project.
+"""
 
 from pathlib import Path
 import os
+from datetime import timedelta
 
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-*m0p3e=23zyxlf)v%1@_t%^a*&-0!osmisdi96!c7h&-5(-h_i'
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '192.168.1.28']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -21,12 +25,13 @@ INSTALLED_APPS = [
     
     'rest_framework',
     'corsheaders',
-
+    
     'usuarios',
     'cuentas',
     'transacciones',
     'prestamos',
     'tarjetas',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
@@ -60,14 +65,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'banco_project.wsgi.application'
 
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -84,31 +87,34 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 AUTH_USER_MODEL = 'usuarios.Usuario'
-
 
 LANGUAGE_CODE = 'es-pe'
 TIME_ZONE = 'America/Lima'
 USE_I18N = True
 USE_TZ = True
 
-
 STATIC_URL = 'static/'
 
+# Configuración de CORS
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://192.168.1.28:3000"
+]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
 
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
-REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ]
-}
-
-
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
+# Configuración de REST Framework
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -118,8 +124,7 @@ REST_FRAMEWORK = {
     ]
 }
 
-from datetime import timedelta
-
+# Configuración de JWT
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
@@ -147,3 +152,5 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
