@@ -2,14 +2,14 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Prestamo
-from .serializador import SerializadorPrestamo
+from .serializers import PrestamoSerializer
 
 class LoanViewSet(viewsets.ModelViewSet):
     """
     Vista para gestión de préstamos bancarios
     """
     queryset = Prestamo.objects.all()
-    serializer_class = SerializadorPrestamo
+    serializer_class = PrestamoSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):

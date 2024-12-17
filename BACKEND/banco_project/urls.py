@@ -4,13 +4,18 @@ from django.shortcuts import redirect
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from usuarios.views import UserViewSet
-from cuentas.views import AccountViewSet 
-from transacciones.views import TransactionViewSet
+from cuentas.views import AccountViewSet
+from transacciones.views import TransactionViewSet 
 from prestamos.views import LoanViewSet
 from tarjetas.views import CardViewSet
 from dashboard.views import DashboardView
 from informes.views import InformesView
 from notificaciones.views import NotificacionesView
+from presupuestos.views import PresupuestosView
+from personalizacion.views import PersonalizacionView
+from transferencia.views import TransferenciaView
+from soporte.views import SoporteView
+from recordatorios.views import RecordatoriosView
 
 router = DefaultRouter()
 router.register(r'usuarios', UserViewSet)
@@ -18,7 +23,6 @@ router.register(r'cuentas', AccountViewSet)
 router.register(r'transacciones', TransactionViewSet)
 router.register(r'prestamos', LoanViewSet)
 router.register(r'tarjetas', CardViewSet)
-
 
 urlpatterns = [
     path('admin/', admin.site.urls),

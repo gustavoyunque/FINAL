@@ -2,15 +2,18 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Tarjeta
-from .serializador import SerializadorTarjeta
+from .serializers import TarjetaSerializer
 
 class CardViewSet(viewsets.ModelViewSet):
     """
     Vista para gestión de tarjetas bancarias
     """
+class CardViewSet(viewsets.ModelViewSet):
     queryset = Tarjeta.objects.all()
-    serializer_class = SerializadorTarjeta
+    serializer_class = TarjetaSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
 
     def get_queryset(self):
         """

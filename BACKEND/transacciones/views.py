@@ -2,7 +2,7 @@ from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Transaccion
-from .serializador import SerializadorTransaccion
+from .serializers import TransaccionSerializer
 from cuentas.models import Cuenta
 
 class TransactionViewSet(viewsets.ModelViewSet):
@@ -10,7 +10,7 @@ class TransactionViewSet(viewsets.ModelViewSet):
     Vista para gestión de transacciones bancarias
     """
     queryset = Transaccion.objects.all()
-    serializer_class = SerializadorTransaccion
+    serializer_class = TransaccionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):

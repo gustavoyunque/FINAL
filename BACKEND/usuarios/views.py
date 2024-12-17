@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Usuario
-from .serializador import SerializadorUsuario
+from .serializers import UsuarioSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -14,7 +14,7 @@ class UserViewSet(viewsets.ModelViewSet):
     Proporciona operaciones CRUD y acciones personalizadas
     """
     queryset = Usuario.objects.all()
-    serializer_class = SerializadorUsuario
+    serializer_class = UsuarioSerializer
 
     def get_permissions(self):
         """
@@ -39,7 +39,7 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response({
                 'refresh': str(refresh),
                 'access': str(refresh.access_token),
-                'user': SerializadorUsuario(user).data
+                'user': UsuarioSerializer(user).data
             }, status=status.HTTP_200_OK)
 
         return Response({

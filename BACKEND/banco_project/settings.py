@@ -22,18 +22,24 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
-    
+    # Apps del proyecto
     'usuarios',
     'cuentas',
     'transacciones',
     'prestamos',
     'tarjetas',
     'dashboard',
+    'informes',
+    'notificaciones',
+    'presupuestos',
+    'recordatorios',
+    'soporte',
+    'transferencia',
+    'personalizacion',
 ]
-
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
