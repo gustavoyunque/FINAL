@@ -36,3 +36,8 @@ Para ejecutar el sistema, sigue estos pasos:
    ```bash
    python manage.py runserver
 
+
+---
+## Ejemplo pantalla principal de inicio de sesion
+Al **iniciar** la pagina, se mostrara lo siguiente:
+![Dashboard del Sistema Bancario](/imagenes/inicio_sesion.jpeg)
