@@ -93,3 +93,13 @@ Para ejecutar el sistema, sigue estos pasos:
    ```bash
    git clone https://github.com/usuario/sistema-bancario.git
    cd sistema-bancario
+2. **Instalar dependencias**:
+   ```bash
+   pip install -r requirements.txt
+3. **Aplicar migraciones**:
+   
+   ```bash
+   python manage.py migrate
+4. **Ejecutar el servidor**:
+   ```bash
+   python manage.py runserver
