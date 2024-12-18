@@ -1,21 +1,88 @@
-## Capturas de Pantalla
+# Capturas de Pantalla del Sistema Bancario Virtual
 
-### Dashboard Principal
+## Dashboard Principal
 A continuación, se muestra una captura de pantalla del **Sistema Bancario Virtual**, destacando las principales funcionalidades disponibles para el usuario:
 
-![Dashboard del Sistema Bancario](/imagenes/interefaz.jpeg)
+![Dashboard Principal](/imagenes/interfaz.jpeg)
 
-### Funcionalidades en el Dashboard:
-1. **Cuentas**: Administrar cuentas bancarias.
-2. **Transacciones**: Visualizar el historial de transacciones realizadas.
-3. **Préstamos**: Gestionar préstamos activos y nuevos.
-4. **Tarjetas**: Control de tarjetas bancarias.
-5. **Soporte**: Solicitar ayuda y asistencia técnica.
-6. **Presupuestos**: Planificación y seguimiento de finanzas.
-7. **Informes**: Generación de reportes financieros.
-8. **Notificaciones**: Centro para alertas importantes.
-9. **Perfil**: Personalización y gestión del perfil de usuario.
-10. **Cerrar Sesión**: Opción para salir del sistema.
+---
+
+## Ejemplo: Pantalla de Inicio de Sesión
+Al **iniciar** la página, se mostrará la siguiente pantalla:
+
+![Inicio de Sesión](/imagenes/inicio_sesion.jpeg)
+
+---
+
+## Funcionalidades Detalladas
+
+### 1. **Cuentas** - Administración de Cuentas Bancarias
+Permite gestionar y consultar las cuentas bancarias del usuario.
+
+![Gestión de Cuentas](/imagenes/mis_cuentas.jpeg)
+
+---
+
+### 2. **Transacciones** - Historial de Transacciones
+Visualiza el historial completo de transacciones realizadas.
+
+![Historial de Transacciones](/imagenes/mis_transacciones.jpeg)
+
+---
+
+### 3. **Préstamos** - Gestión de Préstamos
+Administra préstamos activos y solicitudes de nuevos préstamos.
+
+![Gestión de Préstamos](/imagenes/gestion_de_prestamos.jpeg)
+
+---
+
+### 4. **Tarjetas** - Gestión de Tarjetas Bancarias
+Controla y administra tarjetas bancarias asociadas a la cuenta.
+
+![Gestión de Tarjetas](/imagenes/gestion_de_tarjetas.jpeg)
+
+---
+
+### 5. **Presupuestos** - Planificación Financiera
+Facilita la planificación de presupuestos y el seguimiento de finanzas.
+
+![Gestión de Presupuestos](/imagenes/gestion_de_presupuestos.jpeg)
+
+---
+
+### 6. **Informes Generales** - Generación de Reportes
+Genera informes financieros detallados.
+
+![Informes Generales](/imagenes/informes_generales.jpeg)
+
+---
+
+### 7. **Notificaciones** - Alertas Importantes
+Centro de notificaciones para recibir alertas importantes.
+
+![Notificaciones](/imagenes/notificaciones.jpeg)
+
+---
+
+### 8. **Configuración de Alertas**
+Permite configurar alertas personalizadas para la cuenta bancaria.
+
+![Configuración de Alertas](/imagenes/configuracion_de_alertas.jpeg)
+
+---
+
+### 9. **Soporte y Asistencia**
+Sección para solicitar ayuda y asistencia técnica.
+
+![Soporte y Asistencia](/imagenes/soporte_y_asistencia.jpeg)
+
+---
+
+### 10. **Perfil** - Personalización del Usuario
+Permite personalizar y gestionar la información del perfil.
+
+![Mi Perfil](/imagenes/mi_perfil.jpeg)
 
 ---
 
@@ -26,18 +93,3 @@ Para ejecutar el sistema, sigue estos pasos:
    ```bash
    git clone https://github.com/usuario/sistema-bancario.git
    cd sistema-bancario
-2. **Instalar dependencias**:
-   ```bash
-   pip install -r requirements.txt
-3. **Aplicar migraciones**:
-   ```bash
-   python manage.py migrate
-4. **Ejecutar el servidor**:
-   ```bash
-   python manage.py runserver
-
-
----
-## Ejemplo pantalla principal de inicio de sesion
-Al **iniciar** la pagina, se mostrara lo siguiente:
-![Dashboard del Sistema Bancario](/imagenes/inicio_sesion.jpeg)
