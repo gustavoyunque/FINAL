@@ -3,7 +3,7 @@
 ### Dashboard Principal
 A continuación, se muestra una captura de pantalla del **Sistema Bancario Virtual**, destacando las principales funcionalidades disponibles para el usuario:
 
-![Dashboard del Sistema Bancario](/imagenes/interefaz)
+![Dashboard del Sistema Bancario](/imagenes/interefaz.jpeg)
 
 ### Funcionalidades en el Dashboard:
 1. **Cuentas**: Administrar cuentas bancarias.
