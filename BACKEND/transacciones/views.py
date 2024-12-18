@@ -1,13 +1,13 @@
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.db.models import Sum, Q
 from .models import Transaccion
 from .serializers import TransaccionSerializer
-from cuentas.models import Cuenta
 
-class TransactionViewSet(viewsets.ModelViewSet):
+class TransaccionViewSet(viewsets.ModelViewSet):
     """
-    Vista para gestión de transacciones bancarias
+    Vista para la gestión de transacciones.
     """
     queryset = Transaccion.objects.all()
     serializer_class = TransaccionSerializer
@@ -15,44 +15,43 @@ class TransactionViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """
-        Filtrar transacciones relacionadas con las cuentas del usuario
+        Filtra transacciones según los parámetros de consulta.
         """
-        user_accounts = Cuenta.objects.filter(usuario=self.request.user)
-        return self.queryset.filter(
-            cuenta_origen__in=user_accounts
-        )
+        queryset = Transaccion.objects.filter(usuario=self.request.user)
+        tipo = self.request.query_params.get('tipo')
+        cuenta_origen = self.request.query_params.get('cuenta_origen')
+        cuenta_destino = self.request.query_params.get('cuenta_destino')
+        fecha_inicio = self.request.query_params.get('fecha_inicio')
+        fecha_fin = self.request.query_params.get('fecha_fin')
+
+        if tipo:
+            queryset = queryset.filter(tipo=tipo)
+        if cuenta_origen:
+            queryset = queryset.filter(cuenta_origen=cuenta_origen)
+        if cuenta_destino:
+            queryset = queryset.filter(cuenta_destino=cuenta_destino)
+        if fecha_inicio and fecha_fin:
+            queryset = queryset.filter(fecha__range=[fecha_inicio, fecha_fin])
+
+        return queryset
 
     @action(detail=False, methods=['get'])
-    def ultimas_transacciones(self, request):
+    def resumen(self, request):
         """
-        Obtener las últimas 10 transacciones del usuario
+        Retorna un resumen estadístico de las transacciones del usuario autenticado.
         """
-        user_accounts = Cuenta.objects.filter(usuario=request.user)
-        transacciones = self.queryset.filter(
-            cuenta_origen__in=user_accounts
-        ).order_by('-fecha_transaccion')[:10]
+        usuario = self.request.user
+        resumen = Transaccion.objects.filter(usuario=usuario).aggregate(
+            total_depositos=Sum('monto', filter=Q(tipo='deposito')),
+            total_retiros=Sum('monto', filter=Q(tipo='retiro')),
+            total_transferencias=Sum('monto', filter=Q(tipo='transferencia')),
+        )
 
-        serializer = self.get_serializer(transacciones, many=True)
-        return Response(serializer.data)
+        balance = (resumen['total_depositos'] or 0) - (resumen['total_retiros'] or 0)
 
-    def create(self, request):
-        """
-        Personalizar creación de transacciones
-        Añadir validaciones de negocio
-        """
-        try:
-            serializer = self.get_serializer(data=request.data)
-            serializer.is_valid(raise_exception=True)
-            
-            transaccion = serializer.save()
-            transaccion.procesar_transaccion()
-            
-            return Response(
-                serializer.data, 
-                status=status.HTTP_201_CREATED
-            )
-        except Exception as e:
-            return Response(
-                {'error': str(e)}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        return Response({
+            'total_depositos': resumen['total_depositos'] or 0,
+            'total_retiros': resumen['total_retiros'] or 0,
+            'total_transferencias': resumen['total_transferencias'] or 0,
+            'balance': balance,
+        })

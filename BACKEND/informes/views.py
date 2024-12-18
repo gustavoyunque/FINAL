@@ -1,36 +1,52 @@
-from rest_framework.views import APIView
+
+# views.py
+from rest_framework import viewsets, permissions, status
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from .models import Informe
-from .serializers import InformeSerializer
-from transacciones.models import Transaccion
+from django.utils import timezone
+from .models import Informe, InformeDetalle
+from .serializers import InformeSerializer, InformeDetalleSerializer
+import asyncio
 
-class InformesView(APIView):
-    """
-    Vista para generar informes
-    """
-    def get(self, request):
-        fecha_inicio = request.query_params.get('fecha_inicio')
-        fecha_fin = request.query_params.get('fecha_fin')
+class InformeViewSet(viewsets.ModelViewSet):
+    serializer_class = InformeSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
-        ingresos_totales = Transaccion.objects.filter(
-            tipo__in=['deposito', 'transferencia'], 
-            fecha_transaccion__range=[fecha_inicio, fecha_fin]
-        ).aggregate(total=Sum('monto'))['total'] or 0
+    def get_queryset(self):
+        return Informe.objects.filter(usuario=self.request.user)
 
-        gastos_totales = Transaccion.objects.filter(
-            tipo__in=['retiro', 'pago'], 
-            fecha_transaccion__range=[fecha_inicio, fecha_fin]
-        ).aggregate(total=Sum('monto'))['total'] or 0
-
-        saldo_neto = ingresos_totales - gastos_totales
-
-        informe = Informe.objects.create(
-            fecha_inicio=fecha_inicio,
-            fecha_fin=fecha_fin,
-            ingresos_totales=ingresos_totales,
-            gastos_totales=gastos_totales,
-            saldo_neto=saldo_neto
+    def perform_create(self, serializer):
+        informe = serializer.save(
+            usuario=self.request.user,
+            estado='PENDIENTE'
         )
+        # Iniciar generación asíncrona del informe
+        self.generar_informe(informe)
 
-        serializer = InformeSerializer(informe)
-        return Response(serializer.data)
+    @action(detail=True, methods=['post'])
+    def regenerar(self, request, pk=None):
+        informe = self.get_object()
+        informe.estado = 'PENDIENTE'
+        informe.mensaje_error = None
+        informe.save()
+        # Reiniciar generación del informe
+        self.generar_informe(informe)
+        return Response({'status': 'Regeneración iniciada'})
+
+    def generar_informe(self, informe):
+        try:
+            # Aquí iría la lógica de generación del informe
+            # Por ejemplo, consultando préstamos, transacciones, etc.
+            informe.estado = 'GENERANDO'
+            informe.save()
+            
+            # Simular proceso de generación
+            # En producción, esto debería ser una tarea asíncrona
+            # por ejemplo usando Celery
+            informe.estado = 'COMPLETADO'
+            informe.save()
+            
+        except Exception as e:
+            informe.estado = 'ERROR'
+            informe.mensaje_error = str(e)
+            informe.save()

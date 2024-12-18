@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'corsheaders',
     # Apps del proyecto
     'usuarios',
+    'alertas',
     'cuentas',
     'transacciones',
     'prestamos',

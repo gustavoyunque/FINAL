@@ -1,47 +1,40 @@
-from rest_framework import viewsets, permissions, status
-from rest_framework.decorators import action
+# views.py
+from rest_framework import viewsets, permissions
 from rest_framework.response import Response
+from rest_framework import status
 from .models import Tarjeta
 from .serializers import TarjetaSerializer
 
-class CardViewSet(viewsets.ModelViewSet):
-    """
-    Vista para gestión de tarjetas bancarias
-    """
-class CardViewSet(viewsets.ModelViewSet):
-    queryset = Tarjeta.objects.all()
+class TarjetaViewSet(viewsets.ModelViewSet):
     serializer_class = TarjetaSerializer
     permission_classes = [permissions.IsAuthenticated]
-
-
-
+    
     def get_queryset(self):
-        """
-        Filtrar tarjetas del usuario actual
-        """
-        return self.queryset.filter(usuario=self.request.user)
+        return Tarjeta.objects.filter(usuario=self.request.user)
+    
+    def create(self, request, *args, **kwargs):
+        print("Datos recibidos:", request.data)  # Para debugging
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-    @action(detail=True, methods=['put'])
-    def bloquear_tarjeta(self, request, pk=None):
-        """
-        Bloquear una tarjeta específica
-        """
+    def perform_create(self, serializer):
+        serializer.save(usuario=self.request.user)
+    
+    def destroy(self, request, *args, **kwargs):
         tarjeta = self.get_object()
-        tarjeta.estado = 'bloqueada'
-        tarjeta.save()
-        
-        serializer = self.get_serializer(tarjeta)
-        return Response(serializer.data)
-
-    @action(detail=False, methods=['get'])
-    def tarjetas_activas(self, request):
-        """
-        Obtener tarjetas activas del usuario
-        """
-        tarjetas = self.queryset.filter(
-            usuario=request.user, 
-            estado='activa'
+        tarjeta.delete()
+        return Response(
+            {"message": "Tarjeta eliminada correctamente"},
+            status=status.HTTP_204_NO_CONTENT
         )
-        
-        serializer = self.get_serializer(tarjetas, many=True)
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
         return Response(serializer.data)

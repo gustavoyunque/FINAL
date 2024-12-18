@@ -18,6 +18,7 @@ urlpatterns = [
     path('api/tarjetas/', include('tarjetas.urls')),
     path('api/dashboard/', include('dashboard.urls')),
     path('api/informes/', include('informes.urls')),
+    path('api/alertas/', include('alertas.urls')),
     path('api/notificaciones/', include('notificaciones.urls')),
     path('api/presupuestos/', include('presupuestos.urls')),
     path('api/personalizacion/', include('personalizacion.urls')),

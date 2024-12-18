@@ -1,6 +1,9 @@
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import CategoriaViewSet, PresupuestoViewSet
 
-urlpatterns = [
-    path('presupuestos/', views.PresupuestosView.as_view(), name='presupuestos'),
-]
+router = DefaultRouter()
+router.register('categorias', CategoriaViewSet)
+router.register('', PresupuestoViewSet, basename='presupuesto')  # Cambiado a ruta vacía
+
+urlpatterns = router.urls

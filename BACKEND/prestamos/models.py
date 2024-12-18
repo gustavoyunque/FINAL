@@ -1,111 +1,52 @@
+from django.conf import settings
 from django.db import models
-from django.core.validators import MinValueValidator
-from usuarios.models import Usuario
-from cuentas.models import Cuenta
+from django.utils import timezone
+from decimal import Decimal
 
 class Prestamo(models.Model):
-    ESTADOS_PRESTAMO = (
-        ('solicitado', 'Solicitado'),
-        ('aprobado', 'Aprobado'),
-        ('rechazado', 'Rechazado'),
+    ESTADOS = [
+        ('pendiente', 'Pendiente'),
         ('activo', 'Activo'),
-        ('pagado', 'Pagado'),
-        ('vencido', 'Vencido')
-    )
-
-    TIPOS_PRESTAMO = (
-        ('personal', 'Préstamo Personal'),
-        ('hipotecario', 'Préstamo Hipotecario'),
-        ('vehicular', 'Préstamo Vehicular'),
-        ('empresarial', 'Préstamo Empresarial')
-    )
+        ('completado', 'Completado'),
+    ]
 
     usuario = models.ForeignKey(
-        Usuario, 
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        verbose_name='Usuario',
         related_name='prestamos'
     )
+    monto = models.DecimalField(max_digits=12, decimal_places=2)
+    plazo = models.PositiveIntegerField(help_text="Plazo en meses")
+    tasa_interes = models.DecimalField(max_digits=5, decimal_places=2)
+    cuota = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    saldo_pendiente = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    fecha_creacion = models.DateTimeField(default=timezone.now)
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='pendiente')
 
-    cuenta_asociada = models.ForeignKey(
-        Cuenta,
-        on_delete=models.SET_NULL,
-        null=True,
-        related_name='prestamos_asociados',
-        verbose_name='Cuenta Asociada'
-    )
-
-    monto_solicitado = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2,
-        validators=[MinValueValidator(100.00)],
-        verbose_name='Monto Solicitado'
-    )
-
-    monto_aprobado = models.DecimalField(
-        max_digits=10, 
-        decimal_places=2,
-        null=True,
-        blank=True,
-        verbose_name='Monto Aprobado'
-    )
-
-    tipo_prestamo = models.CharField(
-        max_length=20,
-        choices=TIPOS_PRESTAMO,
-        verbose_name='Tipo de Préstamo'
-    )
-
-    estado = models.CharField(
-        max_length=15,
-        choices=ESTADOS_PRESTAMO,
-        default='solicitado',
-        verbose_name='Estado del Préstamo'
-    )
-
-    tasa_interes = models.DecimalField(
-        max_digits=5, 
-        decimal_places=2,
-        verbose_name='Tasa de Interés (%)'
-    )
-
-    plazo_meses = models.IntegerField(
-        validators=[MinValueValidator(1)],
-        verbose_name='Plazo en Meses'
-    )
-
-    fecha_solicitud = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Fecha de Solicitud'
-    )
-
-    fecha_aprobacion = models.DateTimeField(
-        null=True,
-        blank=True,
-        verbose_name='Fecha de Aprobación'
-    )
-
-    fecha_primer_pago = models.DateField(
-        null=True,
-        blank=True,
-        verbose_name='Fecha del Primer Pago'
-    )
-
-    def calcular_cuota_mensual(self):
+    def calcular_cuota(self):
         """
-        Calcula la cuota mensual del préstamo
+        Calcula la cuota mensual considerando la tasa de interés usando Decimal.
         """
-        if not self.monto_aprobado or not self.tasa_interes or not self.plazo_meses:
-            return None
-        
-        tasa_mensual = self.tasa_interes / 100 / 12
-        cuota = (self.monto_aprobado * tasa_mensual * (1 + tasa_mensual)**self.plazo_meses) / ((1 + tasa_mensual)**self.plazo_meses - 1)
-        return round(cuota, 2)
+        try:
+            tasa_mensual = (self.tasa_interes / Decimal(100)) / Decimal(12)
+            if tasa_mensual > 0:
+                cuota = self.monto * (tasa_mensual * (Decimal(1) + tasa_mensual) ** self.plazo) / (
+                    (Decimal(1) + tasa_mensual) ** self.plazo - Decimal(1)
+                )
+            else:
+                cuota = self.monto / self.plazo
+            return cuota.quantize(Decimal('0.01'))  # Redondear a 2 decimales
+        except Exception as e:
+            print(f"Error al calcular la cuota: {e}")
+            return Decimal(0)
+
+    def save(self, *args, **kwargs):
+        """
+        Guarda el préstamo y calcula la cuota y el saldo pendiente.
+        """
+        self.cuota = self.calcular_cuota()  # Calcular la cuota
+        self.saldo_pendiente = (self.cuota * Decimal(self.plazo)).quantize(Decimal('0.01'))  # Saldo pendiente = Cuota * Plazo
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"Préstamo {self.id} - {self.usuario.username} - {self.estado}"
-
-    class Meta:
-        verbose_name = 'Préstamo'
-        verbose_name_plural = 'Préstamos'
-        ordering = ['-fecha_solicitud']
+        return f"Préstamo de {self.monto} ({self.estado})"

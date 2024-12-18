@@ -1,6 +1,9 @@
-from django.urls import path
-from . import views
+# urls.py
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import InformeViewSet
 
-urlpatterns = [
-    path('informes/', views.InformesView.as_view(), name='informes'),
-]
+router = DefaultRouter()
+router.register('', InformeViewSet, basename='informe')
+
+urlpatterns = router.urls

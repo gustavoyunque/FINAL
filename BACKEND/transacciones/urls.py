@@ -1,11 +1,14 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import TransactionViewSet
+from .views import TransaccionViewSet
 
+# Instancia el router para registrar las vistas
 router = DefaultRouter()
-router.register(r'', TransactionViewSet)
 
+# Registra el ViewSet de transacciones (la ruta base será /api/transacciones/)
+router.register(r'', TransaccionViewSet, basename='transacciones')
+
+# Incluye las rutas generadas por el router
 urlpatterns = [
     path('', include(router.urls)),
-    path('ultimas/', TransactionViewSet.as_view({'get': 'ultimas_transacciones'}), name='ultimas-transacciones')
 ]
