@@ -3,10 +3,11 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import Usuario
-from .serializers import UsuarioSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from .models import Usuario
+from .serializers import UsuarioSerializer
+
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -50,7 +51,6 @@ class UserViewSet(viewsets.ModelViewSet):
     def cambiar_tipo_usuario(self, request, pk=None):
         """
         Acción para cambiar el tipo de usuario
-        Solo accesible para usuarios autorizados
         """
         user = self.get_object()
         nuevo_tipo = request.data.get('tipo_usuario')
@@ -68,16 +68,60 @@ class UserViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """
         Personalizar la creación de usuarios
-        Añade validaciones adicionales
         """
         usuario = serializer.save()
         usuario.is_active = True
         usuario.save()
 
-class PerfilView(APIView):
+
+class VerifyTokenView(APIView):
+    """
+    Vista para verificar la validez del token
+    """
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        return Response({
+            'valid': True,
+            'user': request.user.username
+        })
+
+
+class UserProfileView(APIView):
+    """
+    Vista para obtener el perfil del usuario actual
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """
+        Retorna los datos del usuario autenticado
+        """
+        serializer = UsuarioSerializer(request.user)
+        return Response(serializer.data)
+
+
+class PerfilView(APIView):
+    """
+    Vista para gestionar el perfil del usuario
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """
+        Obtiene los datos del perfil del usuario
+        """
         usuario = request.user
         serializer = UsuarioSerializer(usuario)
         return Response(serializer.data)
+
+    def put(self, request):
+        """
+        Actualiza parcialmente los datos del perfil del usuario
+        """
+        usuario = request.user
+        serializer = UsuarioSerializer(usuario, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
